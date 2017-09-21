@@ -7,7 +7,7 @@
     var oldWidth ;
     var close = false;
     var panel;
-    var closeWidth = "50px";
+    var closeWidth = "30px";
     var $body = $('body');
 
     $.sevencollapse = function(element, options) {
@@ -15,8 +15,8 @@
         oldWidth = $(panel).css("width");
 
         console.log(oldWidth);
-        $(panel).find(".panel-heading").css("text-align","right");
-        $(panel).find(".panel-heading").append('<a  id="open-close"  >\n' +
+        $(panel).find(".box-header").css("text-align","right");
+        $(panel).find(".box-header").append('<a  id="open-close"  >\n' +
             '            <span class="glyphicon glyphicon-chevron-left"></span>\n' +
             '        </a>');
 
@@ -42,28 +42,31 @@
             op.left = ($(panel).outerWidth(true)-50 )+"px";
             $(panel).animate(op,"slow","swing",function () {
                 $(panel).removeClass("sc-active-panel");
-                if (typeof options.onOpen == 'function') {
+                if (options.onOpen!= undefined && typeof options.onOpen == 'function') {
                     options.onOpen();
                 }
             });
         }else{
             $(panel).animate({width:closeWidth},"slow","swing",function () {
                 $(panel).removeClass("sc-active-panel");
-                if (typeof options.onOpen == 'function') {
-                    options.onOpen();
+                if(options!=undefined){
+                    if (options.onOpen!= undefined && typeof options.onOpen == 'function') {
+                        options.onOpen();
+                    }
                 }
             });
         }
+        $(".box-title").css("display","none");
 
-        _checkClass($("#open-close span"));
-        $(panel).find(".panel-body").css("display","none");
+        _checkClass($(".open-close span"));
+        $(panel).find(".box-body").css("display","none");
         close = true;
     };
 
     $.sevencollapse.open = function (options) {
         $(panel).stop();
-        _checkClass($("#open-close span"));
-        $(panel).find(".panel-body").removeAttr("display");
+        _checkClass($(".open-close span"));
+        $(panel).find(".box-body").removeAttr("display");
         $(panel).addClass("sc-active-panel");
         if($(panel).data("side") === 'right'){
             // $(panel).css("position","");
@@ -71,15 +74,16 @@
             op.width = oldWidth;
             op.left = "0px";
             $(panel).animate(op,"slow","swing",function () {
-                $(panel).find(".panel-body").css("display","block");
-                if (typeof options.onOpen == 'function') {
+                $(panel).find(".box-body").css("display","block");
+                if (options.onOpen!= undefined && typeof options.onOpen == 'function') {
                     options.onOpen();
                 }
             });
         }else{
             $(panel).animate({width:oldWidth},"slow","swing",function () {
-                $(panel).find(".panel-body").css("display","block");
-                if (typeof options.onOpen == 'function') {
+                $(panel).find(".box-body").css("display","block");
+                $(".box-title").css("display","inline-block");
+                if (options.onOpen!= undefined && typeof options.onOpen == 'function') {
                     options.onOpen();
                 }
             });
@@ -97,7 +101,8 @@
 
         var defaults = {
             bodyClass: 'sc-active sc-active-panel', // Class to be added to body when panel is opened
-            clickClose: true,       // If true closes panel when clicking outside it
+            clickClose: false,       // If true closes panel when clicking outside it
+            dbclickClose:false,
             onOpen: null,            // Callback after the panel opens
             side: 'left' // left->open to right ; right->open to left
         };
@@ -121,35 +126,55 @@
 
         $(panel).addClass(defaults.bodyClass);
         $(panel).data("side",defaults.side);
+        var clsetd = defaults.class==undefined?"":defaults.class;
+        var cls = "open-close"
+        if(""!=clsetd){
+            cls = "open-close-"+clsetd;
+        }
 
         if(defaults.side === 'left'){
             // console.log(oldWidth);
-            $(panel).find(".panel-heading").css("text-align","right");
-            $(panel).find(".panel-heading").append('<a  id="open-close"  >\n' +
+            $(panel).find(".box-header").css("text-align","right");
+            if(defaults.title!=undefined){
+                $(panel).find(".box-header").append('<h3 class="box-title">'+defaults.title+'</h3>');
+
+            }
+            $(panel).find(".box-header").append('<a  class="open-close"  >\n' +
                 '            <span class="glyphicon glyphicon-chevron-left"></span>\n' +
                 '        </a>');
 
-            $("#open-close").on("click",function () {
+            $(".open-close").on("click",function () {
                 _openClose(!close,defauts);
             });
 
-            $(panel).dblclick(function () {
-                _openClose(!close,defauts);
-            })
+            if(defaults.dbclickClose){
+                $(panel).dblclick(function () {
+                    _openClose(!close,defauts);
+                })
+            }
+            $(".box-title").css("float","left");
+
         }else if(defaults.side === 'right'){
-            $(panel).find(".panel-heading").css("text-align","left");
-            $(panel).find(".panel-heading").append('<a  id="open-close"  >\n' +
+            $(panel).find(".box-header").css("text-align","left");
+            if(defaults.title!=undefined){
+                $(panel).find(".box-header").append('<h3 class="box-title">'+defaults.title+'</h3>');
+            }
+            $(panel).find(".box-header").append('<a  class="open-close"  >\n' +
                 '            <span class="glyphicon glyphicon-chevron-right"></span>\n' +
                 '        </a>');
 
-            $("#open-close").on("click",function () {
+            $(".open-close").on("click",function () {
                 _openClose(!close,defauts);
             });
 
-            $(panel).dblclick(function () {
-                _openClose(!close,defauts);
-            })
+            if(defaults.dbclickClose){
+                $(panel).dblclick(function () {
+                    _openClose(!close,defauts);
+                })
+            }
+            $(".box-title").css("float","right");
         }
+
 
         return this;
     };
